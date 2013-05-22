@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='optfunc-ysimonson',
-      version='0.1',
+      version='0.1.1',
       description='Generate commandline flags from function arguments.',
       author='Simon Willison',
       author_email='simon@lanyrd.com',
