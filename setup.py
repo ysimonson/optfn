@@ -2,15 +2,15 @@
 
 from distutils.core import setup
 
-with open('README.txt') as doc:
+with open('README.md') as doc:
   long_description = doc.read()
 
-setup(name='optfunc',
-      version='1.0',
+setup(name='optfunc-ysimonson',
+      version='0.1',
       description='Generate commandline flags from function arguments.',
       author='Simon Willison',
       author_email='simon@lanyrd.com',
-      url='https://github.com/simonw/optfunc',
+      url='https://github.com/ysimonson/optfunc',
       license='BSD',
       classifiers=['Intended Audience :: Developers',
                    'License :: OSI Approved :: BSD License',
