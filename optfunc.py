@@ -143,13 +143,6 @@ def run(
             stderr.write('%s: ' % func.__name__)
         stderr.write("%s\n" % '\n'.join(errors))
 
-def main(*args, **kwargs):
-    prev_frame = inspect.stack()[-1][0]
-    mod = inspect.getmodule(prev_frame)
-    if mod is not None and mod.__name__ == '__main__':
-        run(*args, **kwargs)
-    return args[0] # So it won't break anything if used as a decorator
-
 # Decorators
 def notstrict(fn):
     fn.optfunc_notstrict = True
