@@ -1,8 +1,6 @@
 optfunc
 =======
 
-Parse command line options in Python using function introspection.
-
 optfunc uses introspection to make a Python function available as a command
 line utility. It's syntactic sugar around optparse from the standard library.
 
