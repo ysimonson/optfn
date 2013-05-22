@@ -12,10 +12,12 @@ class ErrorCollectingOptionParser(OptionParser):
     
     def parse_args(self, argv):
         options, args = OptionParser.parse_args(self, argv)
+        
         for k,v in options.__dict__.iteritems():
             if k in self._custom_names:
                 options.__dict__[self._custom_names[k]] = v
                 del options.__dict__[k]
+        
         return options, args
 
     def error(self, msg):
@@ -26,8 +28,10 @@ def func_to_optionparser(func):
     defaultvals = defaultvals or ()
     options = dict(zip(args[-len(defaultvals):], defaultvals))
     argstart = 0
+
     if func.__name__ == '__init__':
         argstart = 1
+    
     if defaultvals:
         required_args = args[argstart:-len(defaultvals)]
     else:
@@ -40,9 +44,11 @@ def func_to_optionparser(func):
     
     # Add the options, automatically detecting their -short and --long names
     shortnames = set(['h'])
+    
     for funcname, example in options.items():
         # They either explicitly set the short with x_blah...
         name = funcname
+        
         if single_char_prefix_re.match(name):
             short = name[0]
             name = name[2:]
@@ -56,10 +62,12 @@ def func_to_optionparser(func):
         shortnames.add(short)
         short_name = '-%s' % short
         long_name = '--%s' % name.replace('_', '-')
+        
         if example in (True, False, bool):
             action = 'store_true'
         else:
             action = 'store'
+        
         opt.add_option(make_option(
             short_name, long_name, action=action, dest=name, default=example,
             help = helpdict.get(funcname, '')
@@ -80,39 +88,39 @@ def resolve_args(func, argv):
     # Do we have correct number af required args?
     if len(required_args) != len(args):
         if not hasattr(func, 'optfunc_notstrict'):
-            parser._errors.append('Required %d arguments, got %d' % (
-                len(required_args), len(args)
-            ))
+            parser._errors.append('Required %d arguments, got %d' % (len(required_args), len(args)))
     
     # Ensure there are enough arguments even if some are missing
     args += [None] * (len(required_args) - len(args))
+
     for i, name in enumerate(required_args):
         setattr(options, name, args[i])
     
     return options.__dict__, parser._errors
 
-def run(
-        func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr
-    ):
+def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     argv = argv or sys.argv[1:]
     include_func_name_in_errors = False
     
     # Handle multiple functions
     if isinstance(func, (tuple, list)):
-        funcs = dict([
-            (fn.__name__, fn) for fn in func
-        ])
+        funcs = dict([(fn.__name__, fn) for fn in func])
+
         try:
             func_name = argv.pop(0)
         except IndexError:
             func_name = None
+        
         if func_name not in funcs:
             names = ["'%s'" % fn.__name__ for fn in func]
             s = ', '.join(names[:-1])
+
             if len(names) > 1:
                 s += ' or %s' % names[-1]
+            
             stderr.write("Unknown command: try %s\n" % s)
             return
+        
         func = funcs[func_name]
         include_func_name_in_errors = True
 
@@ -137,10 +145,12 @@ def run(
         except Exception, e:
             if include_func_name_in_errors:
                 stderr.write('%s: ' % func.__name__)
+
             stderr.write(str(e) + '\n')
     else:
         if include_func_name_in_errors:
             stderr.write('%s: ' % func.__name__)
+
         stderr.write("%s\n" % '\n'.join(errors))
 
 # Decorators
