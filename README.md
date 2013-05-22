@@ -3,15 +3,10 @@ optfunc
 
 Parse command line options in Python using function introspection.
 
-Post feedback here: http://simonwillison.net/2009/May/28/optfunc/
-
-I can never remember how to use any of Python's regular command line parsing
-libraries.
-
 optfunc uses introspection to make a Python function available as a command
 line utility. It's syntactic sugar around optparse from the standard library.
 
-Here's what the API looks like so far:
+Here's what the API looks like:
 
     import optfunc
     
@@ -33,25 +28,13 @@ And here's the resulting command-line interface:
     Options:
       -h, --help     show this help message and exit
       -v, --verbose  
-    $ ./demo.py README.txt 
+    $ ./demo.py README.md 
     OPTFUNC
     ...
-    $ ./demo.py README.txt -v
+    $ ./demo.py README.md -v
     Processing 2049 bytes...
     OPTFUNC
     ...
-
-If you don't mind relying on some stack inspecting magic, you can replace the 
-__name__ == '__main__ idiom with the following:
-
-    optfunc.main(upper)
-
-If you like really short scripts, you can even use this function as a 
-decorator:
-
-    @optfunc.main
-    def upper(filename):
-        print open(filename).read().upper()
 
 How arguments work
 ------------------
@@ -156,8 +139,7 @@ handle the subcommand pattern please let me know.
 Decorators
 ----------
 
-optfunc also supports two decorators for stuff I couldn't work out how to 
-shoehorn in to a regular function definition. geocode.py shows them in action:
+optfunc also supports two decorators for extra functionality:
 
     @optfunc.notstrict
     @optfunc.arghelp('list_geocoders', 'list available geocoders and exit')
@@ -170,13 +152,3 @@ the list_geocoders argument to work even if a string has not been provided.
 
 @arghelp('arg-name', 'help text') allows you to provide help on individual 
 arguments, which will then be displayed when --help is called.
-
-TODO
-----
-
-* Support for different argument types (int, string, filehandle, choices)
-* Special handling for 'stdin' as an argument name
-* Proper unix error semantics (sys.exit(1) etc)
-* Allow the function to be a generator, print iterations to stdout
-* Support for *args (I don't think **kwargs makes sense for optfunc)
-* Subcommands need to interact with --help better
