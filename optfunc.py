@@ -38,7 +38,7 @@ def func_to_optionparser(func):
         required_args = args[argstart:]
     
     # Build the OptionParser:
-    opt = ErrorCollectingOptionParser(usage = func.__doc__)
+    opt = ErrorCollectingOptionParser(usage=func.__doc__)
     
     helpdict = getattr(func, 'optfunc_arghelp', {})
     
@@ -46,15 +46,15 @@ def func_to_optionparser(func):
     shortnames = set(['h'])
     
     for funcname, example in options.items():
-        # They either explicitly set the short with x_blah...
         name = funcname
         
         if single_char_prefix_re.match(name):
+            # They either explicitly set the short with x_blah...
             short = name[0]
             name = name[2:]
             opt._custom_names[name] = funcname
-        # Or we pick the first letter from the name not already in use:
         else:
+            # Or we pick the first letter from the name not already in use:
             for short in name:
                 if short not in shortnames:
                     break
