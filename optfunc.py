@@ -75,7 +75,7 @@ def func_to_optionparser(func):
     
     return opt, required_args
 
-def resolve_args(func, argv):
+def resolve_args(func, argv, **special_pipes):
     parser, required_args = func_to_optionparser(func)
     options, args = parser.parse_args(argv)
     
@@ -83,7 +83,7 @@ def resolve_args(func, argv):
     for pipe in ('stdin', 'stdout', 'stderr'):
         if pipe in required_args:
             required_args.remove(pipe)
-            setattr(options, 'optfunc_use_%s' % pipe, True)
+            setattr(options, pipe, special_pipes[pipe])
     
     # Do we have correct number af required args?
     if len(required_args) != len(args):
@@ -125,20 +125,17 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
         include_func_name_in_errors = True
 
     if inspect.isfunction(func):
-        resolved, errors = resolve_args(func, argv)
+        resolved, errors = resolve_args(func, argv, stdin=stdin, stdout=stdout, stderr=stderr)
     elif inspect.isclass(func):
         if hasattr(func, '__init__'):
-            resolved, errors = resolve_args(func.__init__, argv)
+            resolved, errors = resolve_args(func.__init__, argv, stdin=stdin, stdout=stdout, stderr=stderr)
         else:
             resolved, errors = {}, []
     else:
         raise TypeError('arg is not a Python function or class')
     
-    # Special case for stdin/stdout/stderr
-    for pipe in ('stdin', 'stdout', 'stderr'):
-        if resolved.pop('optfunc_use_%s' % pipe, False):
-            resolved[pipe] = locals()[pipe]
-    
+    # Run the function of return an error if there were argument resolution
+    # errors
     if not errors:
         return func(**resolved)
     else:
