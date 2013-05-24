@@ -266,5 +266,24 @@ class TestOptFunc(unittest.TestCase):
         optfunc.run(upper, stderr=stderr)
         self.assertEqual(stderr.written, 'an error')
 
+    def test_return_arguments(self):
+        "Checks that return values of functions are proxied back by run()"
+
+        def one():
+            return "one called"
+        
+        def two():
+            return "two called"
+
+        e = StringIO()
+        result = optfunc.run([one, two], ['one'], stderr=e)
+        self.assertEqual(e.getvalue().strip(), "")
+        self.assertEqual(result, "one called")
+
+        e = StringIO()
+        result = optfunc.run([one, two], ['three'], stderr=e)
+        self.assertEqual(e.getvalue().strip(), "Unknown command: try 'one' or 'two'")
+        self.assertEqual(result, -1)
+
 if __name__ == '__main__':
     unittest.main()

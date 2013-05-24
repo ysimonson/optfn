@@ -119,7 +119,7 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
                 s += ' or %s' % names[-1]
             
             stderr.write("Unknown command: try %s\n" % s)
-            return
+            return -1
         
         func = funcs[func_name]
         include_func_name_in_errors = True
@@ -140,13 +140,7 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
             resolved[pipe] = locals()[pipe]
     
     if not errors:
-        try:
-            return func(**resolved)
-        except Exception, e:
-            if include_func_name_in_errors:
-                stderr.write('%s: ' % func.__name__)
-
-            stderr.write(str(e) + '\n')
+        return func(**resolved)
     else:
         if include_func_name_in_errors:
             stderr.write('%s: ' % func.__name__)
