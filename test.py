@@ -191,36 +191,6 @@ class TestOptFunc(unittest.TestCase):
         optfunc.run([one, two], ['two', 'arg!'], stderr=e)
         self.assertEqual(e.getvalue().strip(), '')
         self.assertEqual(executed, [('two', 'arg!')])
-
-    def test_run_class(self):
-        class Class:
-            def __init__(self, one, option=''):
-                self.has_run = [(one, option)]
-        
-        class NoInitClass:
-            pass
-
-        # Should execute
-        e = StringIO()
-        c = optfunc.run(Class, ['the-required', '-o', 'the-option'], stderr=e)
-        self.assertEqual(e.getvalue().strip(), '')
-        self.assert_(c.has_run[0])
-        self.assertEqual(c.has_run[0], ('the-required', 'the-option'))
-        
-        # Option should be optional
-        c = None
-        e = StringIO()
-        c = optfunc.run(Class, ['required2'], stderr=e)
-        self.assertEqual(e.getvalue().strip(), '')
-        self.assert_(c.has_run[0])
-        self.assertEqual(c.has_run[0], ('required2', ''))
-
-        # Classes without init should work too
-        c = None
-        e = StringIO()
-        c = optfunc.run(NoInitClass, [], stderr=e)
-        self.assert_(c)
-        self.assertEqual(e.getvalue().strip(), '')
     
     def test_stdin_special_argument(self):
         consumed = []
