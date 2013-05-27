@@ -3,6 +3,8 @@ import sys, inspect, re
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
 
+ERROR_RETURN_CODE = object()
+
 class ErrorCollectingOptionParser(OptionParser):
     def __init__(self, *args, **kwargs):
         self._errors = []
@@ -64,31 +66,28 @@ def func_to_optionparser(func):
             short_name, long_name, action=action, dest=name, default=example,
             help = helpdict.get(funcname, '')
         ))
-    
-    return opt, required_args
+
+    return len(required_args), varargs != None, opt
 
 def resolve_args(func, argv, **special_pipes):
-    parser, required_args = func_to_optionparser(func)
+    num_required_args, has_varargs, parser = func_to_optionparser(func)
     options, args = parser.parse_args(argv)
+
+    # Do we have correct number af required args?
+    if num_required_args > len(args) or (num_required_args < len(args) and not has_varargs):
+        if not hasattr(func, 'optfunc_notstrict'):
+            num_required_args_str = "%s or more" % num_required_args if has_varargs else num_required_args
+            parser._errors.append('Required %s arguments, got %d' % (num_required_args_str, len(args)))
+    
+        # Ensure there are enough arguments even if some are missing
+        args += [None] * (num_required_args - len(args))
     
     # Special case for stdin/stdout/stderr
-    for pipe in ('stdin', 'stdout', 'stderr'):
-        if pipe in required_args:
-            required_args.remove(pipe)
-            setattr(options, pipe, special_pipes[pipe])
+    for pipe_name, pipe_value in special_pipes.iteritems():
+        if pipe_name in options.__dict__:
+            setattr(options, pipe_name, pipe_value)
     
-    # Do we have correct number af required args?
-    if len(required_args) != len(args):
-        if not hasattr(func, 'optfunc_notstrict'):
-            parser._errors.append('Required %d arguments, got %d' % (len(required_args), len(args)))
-    
-    # Ensure there are enough arguments even if some are missing
-    args += [None] * (len(required_args) - len(args))
-
-    for i, name in enumerate(required_args):
-        setattr(options, name, args[i])
-    
-    return options.__dict__, parser._errors
+    return args, options.__dict__, parser._errors
 
 def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     argv = argv or sys.argv[1:]
@@ -111,25 +110,26 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
                 s += ' or %s' % names[-1]
             
             stderr.write("Unknown command: try %s\n" % s)
-            return -1
+            return ERROR_RETURN_CODE
         
         func = funcs[func_name]
         include_func_name_in_errors = True
 
     if callable(func):
-        resolved, errors = resolve_args(func, argv, stdin=stdin, stdout=stdout, stderr=stderr)
+        args, kwargs, errors = resolve_args(func, argv, stdin=stdin, stdout=stdout, stderr=stderr)
     else:
         raise TypeError('func is not callable')
     
     # Run the function of return an error if there were argument resolution
     # errors
     if not errors:
-        return func(**resolved)
+        return func(*args, **kwargs)
     else:
         if include_func_name_in_errors:
             stderr.write('%s: ' % func.__name__)
 
         stderr.write("%s\n" % '\n'.join(errors))
+        return ERROR_RETURN_CODE
 
 # Decorators
 def notstrict(fn):
