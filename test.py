@@ -39,6 +39,38 @@ class TestOptFunc(unittest.TestCase):
         res = optfunc.run(func, ['one', 'two', 'three'], stderr=e)
         self.assertEqual(e.getvalue(), '')
         self.assertEqual(res, "foo")
+
+    def test_varargs(self):
+        def func(one, two, three, *varargs):
+            return "foo", varargs
+        
+        # Should only have the -h help option
+        num_required_args, has_varargs, parser = optfunc.func_to_optionparser(func)
+        self.assertEqual(len(parser.option_list), 1)
+        self.assertEqual(str(parser.option_list[0]), '-h/--help')
+        
+        # Should have three required args
+        self.assertEqual(num_required_args, 3)
+        self.assertEqual(has_varargs, True)
+        
+        # Running it with the wrong number of arguments should cause an error
+        for argv in (['one'], ['one', 'two']):
+            e = StringIO()
+            res = optfunc.run(func, argv, stderr=e)
+            self.assert_('Required 3 or more arguments' in e.getvalue(), e.getvalue())
+            self.assertEqual(res, optfunc.ERROR_RETURN_CODE)
+        
+        # Running it with the right number of arguments should be fine - no varargs
+        e = StringIO()
+        res = optfunc.run(func, ['one', 'two', 'three'], stderr=e)
+        self.assertEqual(e.getvalue(), '')
+        self.assertEqual(res, ("foo", ()))
+
+        # Running it with the right number of arguments should be fine - with varargs
+        e = StringIO()
+        res = optfunc.run(func, ['one', 'two', 'three', 'four', 'five'], stderr=e)
+        self.assertEqual(e.getvalue(), '')
+        self.assertEqual(res, ("foo", ("four", "five")))
     
     def test_one_arg_one_option(self):
         def func(one, option=''):
