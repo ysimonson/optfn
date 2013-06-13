@@ -103,11 +103,12 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
             func_name = None
         
         if func_name not in funcs:
-            names = ["'%s'" % fn.__name__ for fn in func]
-            s = ', '.join(names[:-1])
+            sorted_names = sorted(fn.__name__ for fn in func)
+            quoted_names = ["'%s'" % name for name in sorted_names]
+            s = ', '.join(quoted_names[:-1])
 
-            if len(names) > 1:
-                s += ' or %s' % names[-1]
+            if len(quoted_names) > 1:
+                s += ' or %s' % quoted_names[-1]
             
             stderr.write("Unknown command: try %s\n" % s)
             return ERROR_RETURN_CODE

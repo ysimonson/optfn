@@ -8,15 +8,17 @@ Here's what the API looks like:
 
     import optfunc
     
-    def upper(filename, verbose = False):
-        "Usage: %prog <file> [--verbose] - output file content in uppercase"
+    def removechars(filename, *chars, verbose=False):
+        "Usage: %prog <file> <chars...> [--verbose] - prints the file contents, with the specified characters removed"
         s = open(filename).read()
         if verbose:
             print "Processing %s bytes..." % len(s)
-        print s.upper()
+        for c in chars:
+            s = s.replace(c, "")
+        print s
     
     if __name__ == '__main__':
-        optfunc.run(upper)
+        optfunc.run(removechars)
 
 And here's the resulting command-line interface:
 

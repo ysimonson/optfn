@@ -184,13 +184,13 @@ class TestOptFunc(unittest.TestCase):
         e = StringIO()
         res = optfunc.run([one, two, three], ['four'], stderr=e)
         self.assertEqual(res, optfunc.ERROR_RETURN_CODE)
-        self.assertEqual(e.getvalue().strip(), "Unknown command: try 'one', 'two' or 'three'")
+        self.assertEqual(e.getvalue().strip(), "Unknown command: try 'one', 'three' or 'two'")
         
         # No argument at all should raise an error
         e = StringIO()
         res = optfunc.run([one, two, three], [], stderr=e)
         self.assertEqual(res, optfunc.ERROR_RETURN_CODE)
-        self.assertEqual(e.getvalue().strip(), "Unknown command: try 'one', 'two' or 'three'")
+        self.assertEqual(e.getvalue().strip(), "Unknown command: try 'one', 'three' or 'two'")
     
     def test_multiple_valid_subcommand_invalid_argument(self):
         "Subcommands with invalid arguments should report as such"
