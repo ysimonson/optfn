@@ -1,45 +1,48 @@
-optfunc
-=======
+optfn
+=====
 
-optfunc uses introspection to make a Python function available as a command
+optfn uses introspection to make a Python function available as a command
 line utility. It's syntactic sugar around optparse from the standard library.
 
 Here's what the API looks like:
 
-    import optfunc
-    
-    def removechars(filename, *chars, verbose=False):
-        "Usage: %prog <file> <chars...> [--verbose] - prints the file contents, with the specified characters removed"
+    import optfn
+
+    def upper(filename, verbose=False):
+        "Usage: %prog <file> [--verbose] - output file content in uppercase"
+
         s = open(filename).read()
+        
         if verbose:
             print "Processing %s bytes..." % len(s)
-        for c in chars:
-            s = s.replace(c, "")
-        print s
-    
+        
+        print s.upper()
+
     if __name__ == '__main__':
-        optfunc.run(removechars)
+        optfn.run(upper)
 
 And here's the resulting command-line interface:
 
-    $ ./demo.py --help
+    $ python demo.py --help
     Usage: demo.py <file> [--verbose] - output file content in uppercase
     
     Options:
       -h, --help     show this help message and exit
       -v, --verbose  
-    $ ./demo.py README.md 
-    OPTFUNC
+
+    $ python demo.py README.md 
+    OPTFN
     ...
-    $ ./demo.py README.md -v
+
+    $ python demo.py README.md -v
     Processing 2049 bytes...
-    OPTFUNC
+    OPTFN
     ...
 
 How arguments work
 ------------------
 
-Non-keyword arguments are treated as required arguments - optfunc.run will 
+Non-keyword arguments are treated as required arguments - optfn.run will 
 throw an error if they number of arguments provided on the command line 
 doesn't match the number expected by the function (unless @notstrict is used, 
 see below).
@@ -88,9 +91,9 @@ passed the relevant Python objects, for example:
     
     #!/usr/bin/env python
     # upper.py
-    import optfunc
+    import optfn
     
-    @optfunc.main
+    @optfn.main
     def upper_stdin(stdin, stdout):
         stdout.write(stdin.read().upper())
 
@@ -105,11 +108,11 @@ Subcommands
 Some command line applications feature subcommands, with the first argument 
 to the application indicating which subcommand should be executed.
 
-optfunc has the beginnings of support for this - you can pass an array of 
-functions to the optfunc.run() and the names of the functions will be used 
-to select a subcommand based on the first argument:
+optfn supports this - you can pass an array of  functions to `optfn.run()` and
+the names of the functions will be used to select a subcommand based on the
+first argument:
 
-    import optfunc
+    import optfn
     
     def one(arg):
         print "One: %s" % arg
@@ -121,7 +124,7 @@ to select a subcommand based on the first argument:
         print "Three: %s" % arg
     
     if __name__ == '__main__':
-        optfunc.run([one, two, three])
+        optfn.run([one, two, three])
 
 Usage looks like this:
 
@@ -139,10 +142,10 @@ handle the subcommand pattern please let me know.
 Decorators
 ----------
 
-optfunc also supports two decorators for extra functionality:
+optfn also supports two decorators for extra functionality:
 
-    @optfunc.notstrict
-    @optfunc.arghelp('list_geocoders', 'list available geocoders and exit')
+    @optfn.notstrict
+    @optfn.arghelp('list_geocoders', 'list available geocoders and exit')
     def geocode(s, api_key='', geocoder='google', list_geocoders=False):
         # ...
 

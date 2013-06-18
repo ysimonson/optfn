@@ -34,7 +34,7 @@ def func_to_optionparser(func):
     # Build the OptionParser:
     opt = ErrorCollectingOptionParser(usage=func.__doc__)
     
-    helpdict = getattr(func, 'optfunc_arghelp', {})
+    helpdict = getattr(func, 'optfn_arghelp', {})
     
     # Add the options, automatically detecting their -short and --long names
     shortnames = set(['h'])
@@ -75,7 +75,7 @@ def resolve_args(func, argv, **special_pipes):
 
     # Do we have correct number af required args?
     if num_required_args > len(args) or (num_required_args < len(args) and not has_varargs):
-        if not hasattr(func, 'optfunc_notstrict'):
+        if not hasattr(func, 'optfn_notstrict'):
             num_required_args_str = "%s or more" % num_required_args if has_varargs else num_required_args
             parser._errors.append('Required %s arguments, got %d' % (num_required_args_str, len(args)))
     
@@ -134,13 +134,13 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
 
 # Decorators
 def notstrict(fn):
-    fn.optfunc_notstrict = True
+    fn.optfn_notstrict = True
     return fn
 
 def arghelp(name, help):
     def inner(fn):
-        d = getattr(fn, 'optfunc_arghelp', {})
+        d = getattr(fn, 'optfn_arghelp', {})
         d[name] = help
-        setattr(fn, 'optfunc_arghelp', d)
+        setattr(fn, 'optfn_arghelp', d)
         return fn
     return inner
