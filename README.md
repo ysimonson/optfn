@@ -4,6 +4,10 @@ optfn
 optfn uses introspection to make a Python function available as a command
 line utility. It's syntactic sugar around optparse from the standard library.
 
+optfn was built off of [simonw's optfunc](https://github.com/simonw/optfunc),
+however they are incompatible with one another - optfn adds support for
+varargs, and removes class-based sub-commands.
+
 Here's what the API looks like:
 
     import optfn
