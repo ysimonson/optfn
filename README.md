@@ -1,4 +1,4 @@
-optfn
+optfn [![Build Status](https://travis-ci.org/ysimonson/optfn.png)](https://travis-ci.org/ysimonson/optfn)
 =====
 
 optfn uses introspection to make a Python function available as a command
