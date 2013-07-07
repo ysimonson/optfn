@@ -1,6 +1,14 @@
 import unittest
 import optfn
-from StringIO import StringIO
+import sys
+
+if sys.version_info >= (3,):
+    from io import StringIO
+else:
+    try:
+        from cStringIO import StringIO
+    except:
+        from StringIO import StringIO
 
 class FakeStdin(object):
     def read(self):
