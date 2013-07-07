@@ -29,7 +29,7 @@ class ErrorCollectingOptionParser(OptionParser):
 def func_to_optionparser(func):
     args, varargs, varkw, defaultvals = inspect.getargspec(func)
     defaultvals = defaultvals or ()
-    options = dict(zip(args[-len(defaultvals):], defaultvals))
+    options = zip(args[-len(defaultvals):], defaultvals)
     required_args = args[:-len(defaultvals)] if defaultvals else args[:]
     
     # Build the OptionParser:
@@ -40,7 +40,7 @@ def func_to_optionparser(func):
     # Add the options, automatically detecting their -short and --long names
     shortnames = set(['h'])
     
-    for funcname, example in options.items():
+    for funcname, example in options:
         name = funcname
         
         if single_char_prefix_re.match(name):
