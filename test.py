@@ -39,7 +39,7 @@ class TestOptFn(unittest.TestCase):
         for argv in (['one'], ['one', 'two'], ['one', 'two', 'three', 'four']):
             e = StringIO()
             res = optfn.run(func, argv, stderr=e)
-            self.assert_('Required 3 arguments' in e.getvalue(), e.getvalue())
+            self.assertTrue('Required 3 arguments' in e.getvalue(), e.getvalue())
             self.assertEqual(res, optfn.ERROR_RETURN_CODE)
         
         # Running it with the right number of arguments should be fine
@@ -65,7 +65,7 @@ class TestOptFn(unittest.TestCase):
         for argv in (['one'], ['one', 'two']):
             e = StringIO()
             res = optfn.run(func, argv, stderr=e)
-            self.assert_('Required 3 or more arguments' in e.getvalue(), e.getvalue())
+            self.assertTrue('Required 3 or more arguments' in e.getvalue(), e.getvalue())
             self.assertEqual(res, optfn.ERROR_RETURN_CODE)
         
         # Running it with the right number of arguments should be fine - no varargs
@@ -88,8 +88,8 @@ class TestOptFn(unittest.TestCase):
         num_required_args, has_varargs, parser = optfn.func_to_optionparser(func)
         self.assertEqual(len(parser.option_list), 2)
         strs = [str(o) for o in parser.option_list]
-        self.assert_('-h/--help' in strs)
-        self.assert_('-o/--option' in strs)
+        self.assertTrue('-h/--help' in strs)
+        self.assertTrue('-o/--option' in strs)
         
         # Should have one required arg
         self.assertEqual(num_required_args, 1)
