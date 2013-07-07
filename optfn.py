@@ -1,5 +1,6 @@
 from optparse import OptionParser, make_option
 import sys, inspect, re
+import collections
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
 
@@ -15,7 +16,7 @@ class ErrorCollectingOptionParser(OptionParser):
     def parse_args(self, argv):
         options, args = OptionParser.parse_args(self, argv)
         
-        for k,v in options.__dict__.iteritems():
+        for k,v in options.__dict__.items():
             if k in self._custom_names:
                 options.__dict__[self._custom_names[k]] = v
                 del options.__dict__[k]
@@ -83,7 +84,7 @@ def resolve_args(func, argv, **special_pipes):
         args += [None] * (num_required_args - len(args))
     
     # Special case for stdin/stdout/stderr
-    for pipe_name, pipe_value in special_pipes.iteritems():
+    for pipe_name, pipe_value in special_pipes.items():
         if pipe_name in options.__dict__:
             setattr(options, pipe_name, pipe_value)
     
@@ -116,7 +117,7 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
         func = funcs[func_name]
         include_func_name_in_errors = True
 
-    if callable(func):
+    if isinstance(func, collections.Callable):
         args, kwargs, errors = resolve_args(func, argv, stdin=stdin, stdout=stdout, stderr=stderr)
     else:
         raise TypeError('func is not callable')
