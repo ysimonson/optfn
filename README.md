@@ -90,16 +90,18 @@ This will result in a short option of -q and a long option of --custom-name.
 Special arguments
 -----------------
 
-Arguments with the names 'stdin', 'stdout' or 'stderr' will be automatically 
+Kwargs with the names 'stdin', 'stdout' or 'stderr' will be automatically 
 passed the relevant Python objects, for example:
     
     #!/usr/bin/env python
     # upper.py
     import optfn
-    
-    @optfn.main
-    def upper_stdin(stdin, stdout):
+
+    def upper_stdin(stdin=None, stdout=None):
         stdout.write(stdin.read().upper())
+
+    if __name__ == '__main__':
+        optfn.run(upper_stdin)
 
 Does the following:
 
