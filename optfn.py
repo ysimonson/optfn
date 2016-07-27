@@ -29,7 +29,11 @@ class ErrorCollectingOptionParser(OptionParser):
         self._errors.append(msg)
 
 def func_to_optionparser(func):
-    args, varargs, varkw, defaultvals, _, _, _ = inspect.getfullargspec(func)
+    if sys.version_info[0] == 3:
+        args, varargs, varkw, defaultvals, _, _, _ = inspect.getfullargspec(func)
+    else:
+        args, varargs, varwk, defaultvals = inspect.getargspec(func)
+
     defaultvals = defaultvals or ()
     options = zip(args[-len(defaultvals):], defaultvals)
     required_args = args[:-len(defaultvals)] if defaultvals else args[:]
