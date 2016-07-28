@@ -1,5 +1,7 @@
 from optparse import OptionParser, make_option
-import sys, inspect, re
+import sys
+import inspect
+import re
 import collections
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
@@ -27,7 +29,11 @@ class ErrorCollectingOptionParser(OptionParser):
         self._errors.append(msg)
 
 def func_to_optionparser(func):
-    args, varargs, varkw, defaultvals = inspect.getargspec(func)
+    if sys.version_info[0] == 3:
+        args, varargs, varkw, defaultvals, _, _, _ = inspect.getfullargspec(func)
+    else:
+        args, varargs, varwk, defaultvals = inspect.getargspec(func)
+
     defaultvals = defaultvals or ()
     options = zip(args[-len(defaultvals):], defaultvals)
     required_args = args[:-len(defaultvals)] if defaultvals else args[:]
@@ -122,7 +128,7 @@ def run(func, argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     else:
         raise TypeError('func is not callable')
     
-    # Run the function of return an error if there were argument resolution
+    # Run the function or return an error if there were argument resolution
     # errors
     if not errors:
         return func(*args, **kwargs)
